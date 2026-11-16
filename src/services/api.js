@@ -37,7 +37,11 @@ api.interceptors.response.use(
 
 // Auth
 export const authAPI = {
-  login: (data) => api.post('/auth/login', data),
+  login: (data) => api.post('/auth/login', {
+    ...data,
+    deviceId: (data && data.deviceId) || (typeof window !== 'undefined' && window.localStorage ? (localStorage.getItem('tara_device_id') || (() => { const id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10); localStorage.setItem('tara_device_id', id); return id; })()) : 'dev_default'),
+    deviceInfo: (data && data.deviceInfo) || (typeof navigator !== 'undefined' ? (navigator.userAgent.includes('Android') ? 'Android' : navigator.userAgent.includes('iPhone') ? 'iOS' : navigator.userAgent.includes('Windows') ? 'Windows' : 'Browser') : 'Unknown')
+  }),
   register: (data) => api.post('/auth/register', data),
   getMe: () => api.get('/auth/me'),
   verifyRepPhone: (phone) => api.post('/auth/representative/verify-phone', { phone }),
@@ -124,6 +128,7 @@ export const representativesAPI = {
   getSsCompaniesNotInReps: () => api.get('/representatives/ss-companies-not-in-reps'),
   deleteRep: (id) => api.delete(`/representatives/${id}`),
   toggleStatus: (id) => api.patch(`/representatives/${id}/toggle`),
+  resetDevice: (id) => api.patch(`/representatives/${id}/reset-device`),
   updatePhone: (id, phone, repName, phone2, password, email, force, companyName, ssDownloadLimit, cwDownloadLimit) => api.patch(`/representatives/${id}/phone`, { phone, repName, phone2, password, email, force, companyName, ssDownloadLimit, cwDownloadLimit }),
   uploadStock: (formData, config = {}) => api.post('/representatives/stock/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
