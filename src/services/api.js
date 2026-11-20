@@ -149,7 +149,6 @@ export const representativesAPI = {
   archiveCurrentStatement: (data) => api.post('/representatives/statement/archive-current', data),
   getStatement: (params) => api.get('/representatives/statement', { params }),
   getStatementAll: (params) => api.get('/representatives/statement/download-all', { params }),
-  emailStatement: (data) => api.post('/representatives/statement/email', data),
   uploadCustomerWise: (formData, config = {}) => api.post('/representatives/customer-wise/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
     ...config

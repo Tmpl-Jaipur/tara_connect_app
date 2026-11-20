@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { representativesAPI } from '../../services/api';
 import { toast } from 'react-toastify';
-import { FiUploadCloud, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronLeft, FiChevronRight, FiFileText } from 'react-icons/fi';
+import { FiUploadCloud, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronLeft, FiChevronRight, FiFileText, FiTrash2 } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -66,6 +66,8 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
   const [cwPeriods, setCwPeriods] = useState([]);
   const [cwSelectedPeriod, setCwSelectedPeriod] = useState('');
   const [showCwUploadModal, setShowCwUploadModal] = useState(false);
+  const [showCwDeleteModal, setShowCwDeleteModal] = useState(false);
+  const [isCwDeleting, setIsCwDeleting] = useState(false);
   const [cwUploadFile, setCwUploadFile] = useState(null);
   const [cwUploadMonth, setCwUploadMonth] = useState([
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -187,6 +189,42 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
   useEffect(() => {
     if (activeTab === 'cw') fetchCwData(1);
   }, [activeTab, cwSearchQuery, cwSelectedMfac, cwSelectedPeriod]);
+
+  // Handle Delete Branch CW Period
+  const handleDeleteBranchCwPeriod = async () => {
+    if (!cwSelectedPeriod) return;
+    const [month, year, isHist] = cwSelectedPeriod.split('|');
+    if (!month || !year) return;
+
+    try {
+      setIsCwDeleting(true);
+      const res = await representativesAPI.deleteBranchCustomerWisePeriod({
+        reportMonth: month,
+        reportYear: year,
+        isHistorical: isHist
+      });
+      toast.success(res.data.message || `Deleted ${res.data.deletedCount || 0} records`);
+      setShowCwDeleteModal(false);
+
+      // Refresh periods
+      const pRes = await representativesAPI.getBranchCWPeriods();
+      const newPeriods = pRes.data.periods || [];
+      setCwPeriods(newPeriods);
+      if (newPeriods.length > 0) {
+        const firstP = newPeriods[0];
+        setCwSelectedPeriod(`${firstP.reportMonth}|${firstP.reportYear}|${firstP.isHistorical}`);
+      } else {
+        setCwSelectedPeriod('');
+        setCwData([]);
+        setCwTotalCount(0);
+      }
+    } catch (error) {
+      console.error('Delete Branch CW period error:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete period');
+    } finally {
+      setIsCwDeleting(false);
+    }
+  };
 
   // Handle Branch SS Upload Submit
   const handleSsUploadSubmit = async () => {
@@ -900,6 +938,10 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
             <div className="empty-state" style={{ minHeight: '200px' }}><p>No Branch S&S statement records found.</p></div>
           ) : (
             <>
+              <div className="mobile-table-hint">
+                <span>⇄ Swipe horizontally to view full branch statement</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Item code is pinned</span>
+              </div>
               <div className="table-container" style={{ overflowX: 'auto' }}>
                 <table className="table scrollable" style={{ width: '100%', minWidth: '1500px' }}>
                   <thead>
@@ -1059,6 +1101,23 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {isAdmin && cwPeriods.length > 0 && cwSelectedPeriod && (
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setShowCwDeleteModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: '#ef4444',
+                    borderColor: '#ef4444',
+                    background: 'rgba(239, 68, 68, 0.08)'
+                  }}
+                  title="Delete this month's Branch Customer Wise data"
+                >
+                  <FiTrash2 size={14} /> Delete Month
+                </button>
+              )}
               <button className="btn btn-outline btn-sm" onClick={handleDownloadCwExcel} disabled={cwData.length === 0} style={{ color: '#10b981', borderColor: '#10b981', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <FiDownload /> Download Excel
               </button>
@@ -1247,6 +1306,60 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <button className="btn btn-outline" onClick={() => setShowCwUploadModal(false)} disabled={cwUploading}>Cancel</button>
               <button className="btn btn-primary" onClick={handleCwUploadSubmit} disabled={cwUploading || !cwUploadFile}>{cwUploading ? 'Uploading...' : 'Upload File'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Branch CW Month Modal */}
+      {showCwDeleteModal && cwSelectedPeriod && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div className="card" style={{ width: '450px', padding: '24px', position: 'relative', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <button onClick={() => setShowCwDeleteModal(false)} disabled={isCwDeleting} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+              <FiX size={20} />
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <FiTrash2 size={20} />
+              </div>
+              <div>
+                <h3 style={{ color: 'var(--text-white)', fontSize: '18px', fontWeight: 700, margin: 0 }}>
+                  Delete Branch Customer Wise Data
+                </h3>
+                <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 600 }}>Permanent Deletion</span>
+              </div>
+            </div>
+
+            {(() => {
+              const [month, year, isHist] = cwSelectedPeriod.split('|');
+              const isHistorical = isHist === 'true';
+              return (
+                <div style={{ marginBottom: '20px', padding: '14px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--text-white)' }}>
+                    Are you sure you want to delete all Branch Customer Wise records for:
+                  </p>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent)', marginBottom: '8px' }}>
+                    {isHistorical ? '🗂 Historical' : '📋 Current'} — {month} {year}
+                  </div>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
+                    ⚠️ This action cannot be undone. All branch customer wise rows for this specific period will be permanently removed from the database.
+                  </p>
+                </div>
+              );
+            })()}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button className="btn btn-outline" onClick={() => setShowCwDeleteModal(false)} disabled={isCwDeleting}>
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleDeleteBranchCwPeriod} 
+                disabled={isCwDeleting}
+                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444', color: '#fff' }}
+              >
+                {isCwDeleting ? 'Deleting...' : 'Yes, Delete Permanently'}
+              </button>
             </div>
           </div>
         </div>

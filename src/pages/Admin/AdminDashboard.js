@@ -824,73 +824,107 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
-                <tr key={u._id}>
-                  <td style={{ color: 'var(--accent)', fontWeight: 600 }}>{u.customerCode || '—'}</td>
+              {users.map(u => {
+                const isAdminUser = u.role === 'admin';
+                return (
+                <tr key={u._id} style={isAdminUser ? {
+                  background: 'linear-gradient(90deg, rgba(251,191,36,0.08) 0%, rgba(251,191,36,0.03) 100%)',
+                  borderLeft: '3px solid #f59e0b'
+                } : {}}>
+                  <td style={{ color: isAdminUser ? '#f59e0b' : 'var(--accent)', fontWeight: 600 }}>
+                    {isAdminUser ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ fontSize: '14px' }}>👑</span>
+                        <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '11px', background: 'rgba(251,191,36,0.15)', padding: '2px 7px', borderRadius: '20px', border: '1px solid rgba(251,191,36,0.3)' }}>ADMIN</span>
+                      </span>
+                    ) : (u.customerCode || '—')}
+                  </td>
                   <td style={{ color: 'var(--text-white)' }}>
-                    <div style={{ fontWeight: 600 }}>{getCustomerDisplayName(u)}</div>
-                    {u.gst && u.gst !== '0' && <div style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 500 }}>GST: {u.gst}</div>}
-                    {u.panNo && u.panNo !== '0' && <div style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 500 }}>PAN: {u.panNo}</div>}
+                    <div style={{ fontWeight: 600 }}>{isAdminUser ? u.name || 'Tara Admin' : getCustomerDisplayName(u)}</div>
+                    {!isAdminUser && u.gst && u.gst !== '0' && <div style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 500 }}>GST: {u.gst}</div>}
+                    {!isAdminUser && u.panNo && u.panNo !== '0' && <div style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 500 }}>PAN: {u.panNo}</div>}
+                    {isAdminUser && <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 500 }}>Tara Medicos Pvt. Ltd.</div>}
                   </td>
                   <td style={{ fontSize: '13px' }}>
                     <div>{u.email}</div>
                     <div style={{ color: 'var(--text-muted)' }}>{u.phone || '—'}</div>
                   </td>
                   <td style={{ fontSize: '12px', color: 'var(--text-white)', maxWidth: '140px' }}>
-                    {u.passwordText || '—'}
+                    {isAdminUser ? (
+                      <span style={{ color: '#f59e0b', fontStyle: 'italic', fontSize: '11px' }}>🔒 Protected</span>
+                    ) : (u.passwordText || '—')}
                   </td>
                   <td style={{ fontSize: '11px', color: 'var(--text-white)', maxWidth: '180px', lineHeight: '1.2' }}>
-                    {u.drugLicense ? u.drugLicense.split('/').join(' | ') : '—'}
+                    {isAdminUser ? <span style={{ color: 'var(--text-muted)' }}>—</span> : (u.drugLicense ? u.drugLicense.split('/').join(' | ') : '—')}
                   </td>
                   <td style={{ fontSize: '11px', color: 'var(--text-muted)', maxWidth: '150px' }}>
-                    <div style={{ marginBottom: '4px', lineHeight: '1.2' }}>{u.address || '—'}</div>
-                    <div style={{ color: 'var(--success)', fontWeight: 600 }}>Credit Limit: ₹{u.creditLimit?.toLocaleString() || 0}</div>
-                    <div style={{ color: 'var(--accent)', fontWeight: 500 }}>Days: {u.creditDays || 0}</div>
+                    {isAdminUser ? (
+                      <span style={{ color: '#f59e0b', fontWeight: 600, fontSize: '11px' }}>Super Admin Account</span>
+                    ) : (
+                      <>
+                        <div style={{ marginBottom: '4px', lineHeight: '1.2' }}>{u.address || '—'}</div>
+                        <div style={{ color: 'var(--success)', fontWeight: 600 }}>Credit Limit: ₹{u.creditLimit?.toLocaleString() || 0}</div>
+                        <div style={{ color: 'var(--accent)', fontWeight: 500 }}>Days: {u.creditDays || 0}</div>
+                      </>
+                    )}
                   </td>
                   <td>
-                    <span className={`badge ${u.isActive ? 'badge-success' : 'badge-danger'}`}>
-                      {u.isActive ? 'Active' : 'Inactive'}
-                    </span>
+                    {isAdminUser ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.12)', padding: '3px 10px', borderRadius: '20px', border: '1px solid rgba(16,185,129,0.25)' }}>
+                        ● Active
+                      </span>
+                    ) : (
+                      <span className={`badge ${u.isActive ? 'badge-success' : 'badge-danger'}`}>
+                        {u.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    )}
                   </td>
 
                   <td>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => toggleStatus(u._id, u.isActive)}
-                        title={u.isActive ? 'Deactivate' : 'Activate'}
-                        style={{ color: u.isActive ? 'var(--accent)' : 'var(--danger)', fontSize: '16px' }}
-                      >
-                        {u.isActive ? <FiToggleRight /> : <FiToggleLeft />}
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => openPermissionsModal(u)}
-                        title="Permissions"
-                        style={{ color: 'var(--primary-light)', fontSize: '16px' }}
-                      >
-                        <FiShield />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => deleteUser(u._id)}
-                        title="Delete"
-                        style={{ color: 'var(--danger)', fontSize: '16px' }}
-                      >
-                        <FiTrash2 />
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => toggleBlockUser(u._id, u.isBlocked)}
-                        title={u.isBlocked ? 'Unblock Party' : 'Block Party'}
-                        style={{ color: u.isBlocked ? '#ef4444' : 'var(--text-muted)', fontSize: '16px' }}
-                      >
-                        <FiSlash style={{ strokeWidth: 3 }} />
-                      </button>
-                    </div>
+                    {isAdminUser ? (
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '4px 8px', background: 'rgba(251,191,36,0.07)', borderRadius: '8px', border: '1px solid rgba(251,191,36,0.15)' }}>
+                        🔐 Protected Account
+                      </span>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => toggleStatus(u._id, u.isActive)}
+                          title={u.isActive ? 'Deactivate' : 'Activate'}
+                          style={{ color: u.isActive ? 'var(--accent)' : 'var(--danger)', fontSize: '16px' }}
+                        >
+                          {u.isActive ? <FiToggleRight /> : <FiToggleLeft />}
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => openPermissionsModal(u)}
+                          title="Permissions"
+                          style={{ color: 'var(--primary-light)', fontSize: '16px' }}
+                        >
+                          <FiShield />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => deleteUser(u._id)}
+                          title="Delete"
+                          style={{ color: 'var(--danger)', fontSize: '16px' }}
+                        >
+                          <FiTrash2 />
+                        </button>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => toggleBlockUser(u._id, u.isBlocked)}
+                          title={u.isBlocked ? 'Unblock Party' : 'Block Party'}
+                          style={{ color: u.isBlocked ? '#ef4444' : 'var(--text-muted)', fontSize: '16px' }}
+                        >
+                          <FiSlash style={{ strokeWidth: 3 }} />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           
@@ -950,6 +984,7 @@ const AdminUsers = () => {
                 </div>
               </div>
 
+              {permUser?.role !== 'admin' && (
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Password</label>
                 <input
@@ -961,6 +996,16 @@ const AdminUsers = () => {
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-light)', background: 'var(--bg-glass)', color: 'var(--text-white)', fontSize: '14px' }}
                 />
               </div>
+              )}
+              {permUser?.role === 'admin' && (
+              <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(251,191,36,0.08)', borderRadius: '10px', border: '1px solid rgba(251,191,36,0.2)' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#f59e0b', marginBottom: '4px' }}>👑 Admin Account</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                  Admin password cannot be changed from here.<br/>
+                  To change admin password, contact the developer or use the backend directly.
+                </div>
+              </div>
+              )}
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-glass)', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
@@ -3225,6 +3270,8 @@ const AdminRepresentatives = () => {
   const [cwManufacturers, setCwManufacturers] = useState([]);
   const [cwPeriods, setCwPeriods] = useState([]);
   const [cwSelectedPeriod, setCwSelectedPeriod] = useState('');
+  const [showCwDeleteModal, setShowCwDeleteModal] = useState(false);
+  const [isCwDeleting, setIsCwDeleting] = useState(false);
 
   // Close company dropdown when clicking outside
   useEffect(() => {
@@ -3250,6 +3297,41 @@ const AdminRepresentatives = () => {
       }).catch(() => {});
     }
   }, [subTab]); // eslint-disable-line
+
+  const handleDeleteCwPeriod = async () => {
+    if (!cwSelectedPeriod) return;
+    const [month, year, isHist] = cwSelectedPeriod.split('|');
+    if (!month || !year) return;
+
+    try {
+      setIsCwDeleting(true);
+      const res = await representativesAPI.deleteCustomerWisePeriod({
+        reportMonth: month,
+        reportYear: year,
+        isHistorical: isHist
+      });
+      toast.success(res.data.message || `Deleted ${res.data.deletedCount || 0} records`);
+      setShowCwDeleteModal(false);
+
+      // Refresh periods
+      const pRes = await representativesAPI.getCWPeriods();
+      const newPeriods = pRes.data.periods || [];
+      setCwPeriods(newPeriods);
+      if (newPeriods.length > 0) {
+        const firstP = newPeriods[0];
+        setCwSelectedPeriod(`${firstP.reportMonth}|${firstP.reportYear}|${firstP.isHistorical}`);
+      } else {
+        setCwSelectedPeriod('');
+        setCwData([]);
+        setCwTotalCount(0);
+      }
+    } catch (error) {
+      console.error('Delete CW period error:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete period');
+    } finally {
+      setIsCwDeleting(false);
+    }
+  };
 
   const getCwPeriodParams = () => {
     if (!cwSelectedPeriod) return {};
@@ -3783,6 +3865,24 @@ const AdminRepresentatives = () => {
     } catch (error) {
       toast.error('Failed to update representative status');
     }
+  };
+
+  const handleResetDevice = async (rep) => {
+    setConfirmModal({
+      title: 'Reset Device Lock',
+      message: `Reset device lock for "${rep.name || rep.repName || 'representative'}"?\n\nTheir current device lock will be cleared, and they will be able to log in on a new device.`,
+      danger: false,
+      onConfirm: async () => {
+        setConfirmModal(null);
+        try {
+          const res = await representativesAPI.resetDevice(rep._id);
+          toast.success(res.data.message || 'Device lock reset successfully');
+          fetchReps(page);
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Failed to reset device lock');
+        }
+      }
+    });
   };
 
   const handleRemoveRep = async (rep) => {
@@ -4638,7 +4738,27 @@ const AdminRepresentatives = () => {
                             </button>
                           </td>
                           <td style={{ textAlign: 'right' }}>
-                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleResetDevice(rep)}
+                                style={{
+                                  padding: '5px 9px',
+                                  fontSize: '11px',
+                                  background: rep.deviceId ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                                  border: rep.deviceId ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid var(--border)',
+                                  color: rep.deviceId ? '#f59e0b' : 'var(--text-muted)',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontWeight: 600,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                title={rep.deviceId ? `Device Locked (${rep.deviceInfo || 'Phone'}). Click to Reset Lock.` : 'No device locked yet. Click to clear sessions.'}
+                              >
+                                {rep.deviceId ? '🔒 Reset Device' : '🔓 Reset Device'}
+                              </button>
                               <button 
                                 className="btn btn-outline btn-sm" 
                                 onClick={() => openEditModal(rep)}
@@ -4855,6 +4975,7 @@ const AdminRepresentatives = () => {
                     ))}
                   </select>
                 )}
+
               </div>
 
               <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
@@ -5486,6 +5607,27 @@ const AdminRepresentatives = () => {
                       </option>
                     ))}
                   </select>
+                )}
+
+                {/* Delete Customer Wise Month Button */}
+                {cwPeriods.length > 0 && cwSelectedPeriod && (
+                  <button
+                    className="btn btn-outline btn-sm"
+                    onClick={() => setShowCwDeleteModal(true)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      color: '#ef4444',
+                      borderColor: '#ef4444',
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      padding: '6px 12px',
+                      fontWeight: 600
+                    }}
+                    title="Delete selected month Customer Wise data"
+                  >
+                    <FiTrash2 size={14} /> Delete Month
+                  </button>
                 )}
               </div>
 
@@ -6849,6 +6991,88 @@ const AdminRepresentatives = () => {
                 style={{ backgroundColor: '#f59e0b', borderColor: '#f59e0b', color: '#fff' }}
               >
                 {isArchiving ? 'Archiving...' : 'Archive Period'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Customer Wise Month Modal */}
+      {showCwDeleteModal && cwSelectedPeriod && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          backdropFilter: 'blur(4px)'
+        }}>
+          <div className="card" style={{ width: '450px', margin: '20px', padding: '24px', position: 'relative', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <button 
+              onClick={() => setShowCwDeleteModal(false)}
+              disabled={isCwDeleting}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer'
+              }}
+            >
+              <FiX size={20} />
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <FiTrash2 size={20} />
+              </div>
+              <div>
+                <h3 style={{ color: 'var(--text-white)', fontSize: '18px', fontWeight: 700, margin: 0 }}>
+                  Delete Customer Wise Data
+                </h3>
+                <span style={{ fontSize: '12px', color: '#ef4444', fontWeight: 600 }}>Permanent Deletion</span>
+              </div>
+            </div>
+
+            {(() => {
+              const [month, year, isHist] = cwSelectedPeriod.split('|');
+              const isHistorical = isHist === 'true';
+              return (
+                <div style={{ marginBottom: '20px', padding: '14px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                  <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'var(--text-white)' }}>
+                    Are you sure you want to delete all Customer Wise records for:
+                  </p>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--accent)', marginBottom: '8px' }}>
+                    {isHistorical ? '🗂 Historical' : '📋 Current'} — {month} {year}
+                  </div>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted)' }}>
+                    ⚠️ This action cannot be undone. All customer wise rows for this specific period will be permanently removed from the database.
+                  </p>
+                </div>
+              );
+            })()}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button 
+                className="btn btn-outline" 
+                onClick={() => setShowCwDeleteModal(false)} 
+                disabled={isCwDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn btn-primary" 
+                onClick={handleDeleteCwPeriod} 
+                disabled={isCwDeleting}
+                style={{ backgroundColor: '#ef4444', borderColor: '#ef4444', color: '#fff' }}
+              >
+                {isCwDeleting ? 'Deleting...' : 'Yes, Delete Permanently'}
               </button>
             </div>
           </div>

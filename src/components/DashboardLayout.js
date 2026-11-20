@@ -245,6 +245,15 @@ const DashboardLayout = ({ children, navItems }) => {
             to={item.path}
             end={item.exact}
             className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
+            ref={(node) => {
+              if (node && node.classList && node.classList.contains('active')) {
+                setTimeout(() => {
+                  try {
+                    node.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                  } catch (e) {}
+                }, 80);
+              }
+            }}
           >
             <span className="nav-icon">{item.icon}</span>
             <span style={{ fontSize: '11px', fontWeight: 600 }}>{item.shortLabel || item.label}</span>

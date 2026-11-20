@@ -107,72 +107,24 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  background-color: #e1ded7;
 }
 
-/* === ANIMATED BACKGROUND === */
+/* === LUXURY WARM PARCHMENT / ECRU BACKGROUND (as per reference) === */
 .login-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 35%, #f0fdf4 65%, #fff7ed 100%);
+  background-color: #e1ded7;
+  background: radial-gradient(ellipse at 50% 35%, #e7e5df 0%, #e1ded7 55%, #d8d4cc 100%);
 }
 
 .bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.45;
-  transition: opacity 0.3s ease;
-}
-
-@media (max-width: 600px) {
-  .bg-orb {
-    display: none;
-  }
-  .bg-grid {
-    display: none;
-  }
-}
-
-[data-theme="dark"] .bg-orb {
-  opacity: 0.35;
-}
-
-.bg-orb-1 {
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, rgba(139, 92, 246, 0.08) 100%);
-  top: -180px;
-  right: -120px;
-  animation-delay: 0s;
-}
-
-.bg-orb-2 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.14) 0%, rgba(5, 150, 105, 0.06) 100%);
-  bottom: -120px;
-  left: -120px;
-  animation-delay: 3s;
-}
-
-.bg-orb-3 {
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(251, 146, 60, 0.12) 0%, rgba(245, 158, 11, 0.05) 100%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation-delay: 5s;
+  display: none;
 }
 
 .bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
+  display: none;
 }
 
 /* === CONTAINER === */
@@ -667,4 +619,10 @@
     padding: 20px 16px;
     border-radius: 16px;
   }
+}
+
+
+[data-theme="dark"] .login-page,
+[data-theme="dark"] .login-bg {
+  background: #0f172a;
 }

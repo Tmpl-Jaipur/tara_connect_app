@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, NavLink } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { representativesAPI } from '../../services/api';
@@ -239,6 +239,86 @@ const RepresentativeOverview = () => {
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Email</div>
               <div style={{ fontSize: '16px', color: 'var(--text-white)', fontWeight: 600 }}>{user?.email || '—'}</div>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Action Navigation Grid for Mobile & Tablet */}
+        <div style={{ marginTop: '24px', borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '14px' }}>
+            Quick Access Features
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
+            <NavLink to="/representative/statement" className="rep-quick-card">
+              <div className="rep-quick-icon" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#6366f1' }}>
+                <FiFileText size={20} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>S&S-D Statement</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Opening, Purchase, Sales & Closing</div>
+              </div>
+              <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+            </NavLink>
+
+            <NavLink to="/representative/ss-summary" className="rep-quick-card">
+              <div className="rep-quick-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>
+                <FiList size={20} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>S&S Summary</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Monthly stock & sales summaries</div>
+              </div>
+              <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+            </NavLink>
+
+            {user?.permissions?.canViewCustomerWise && (
+              <NavLink to="/representative/customer-wise" className="rep-quick-card">
+                <div className="rep-quick-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' }}>
+                  <FiUsers size={20} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>Customer Wise</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Sales by doctor & chemist</div>
+                </div>
+                <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+              </NavLink>
+            )}
+
+            <NavLink to="/representative/non-moving" className="rep-quick-card">
+              <div className="rep-quick-icon" style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}>
+                <FiPackage size={20} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>Non-Moving Stock</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Excess & zero movement items</div>
+              </div>
+              <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+            </NavLink>
+
+            {user?.permissions?.canViewPurchaseOrder && (
+              <NavLink to="/representative/purchase-order" className="rep-quick-card">
+                <div className="rep-quick-icon" style={{ background: 'rgba(14, 165, 233, 0.15)', color: '#0ea5e9' }}>
+                  <FiShoppingCart size={20} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>Purchase Orders</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>PO status & item details</div>
+                </div>
+                <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+              </NavLink>
+            )}
+
+            {(user?.permissions?.canViewBranchStatement || user?.permissions?.canViewBranchCustomerWise) && (
+              <NavLink to="/representative/branch-data" className="rep-quick-card">
+                <div className="rep-quick-icon" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>
+                  <FiLayers size={20} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-white)' }}>Branch Data</div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Branch statements & reports</div>
+                </div>
+                <FiChevronRight style={{ color: 'var(--text-muted)' }} />
+              </NavLink>
+            )}
           </div>
         </div>
 
@@ -1069,6 +1149,35 @@ const RepresentativeStatement = () => {
           </div>
         ) : (
           <>
+            {/* Mobile Summary KPI Strip for Fast Overview */}
+            {grandTotals && (
+              <div className="statement-mobile-kpis">
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Opening Stock</div>
+                  <div className="kpi-value">{grandTotals.totalOpQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub">₹{Number(grandTotals.totalOpVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Purchase</div>
+                  <div className="kpi-value">{grandTotals.totalPurQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub">₹{Number(grandTotals.totalPurVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Total Sales</div>
+                  <div className="kpi-value" style={{ color: '#10b981' }}>{grandTotals.totalSaleQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub" style={{ color: '#10b981' }}>₹{Number(grandTotals.totalSaleVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Closing Stock</div>
+                  <div className="kpi-value" style={{ color: 'var(--accent)' }}>{grandTotals.totalBalQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub" style={{ color: 'var(--accent)' }}>₹{Number(grandTotals.totalBalVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+              </div>
+            )}
+            <div className="mobile-table-hint">
+              <span>⇄ Swipe horizontally to view all columns</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Item name is pinned</span>
+            </div>
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <table className="table scrollable" style={{ width: '100%', minWidth: '1700px' }}>
                 <thead>
@@ -1363,6 +1472,7 @@ const CustomerWiseReport = () => {
   }, [searchQuery, selectedMfac, selectedStatementPeriod]); // eslint-disable-line
 
   const [downloading, setDownloading] = useState(false);
+  const [downloadingType, setDownloadingType] = useState('');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const saveAs = (blob, fileName) => {
@@ -1381,6 +1491,7 @@ const CustomerWiseReport = () => {
     let success = false;
     try {
       setDownloading(true);
+      setDownloadingType('excel');
       setDownloadSuccess(false);
 
       let histMonth = '', histYear = '', isHist = false;
@@ -1479,6 +1590,7 @@ const CustomerWiseReport = () => {
       recordDownloadSuccess(user?.id || user?._id, 'cw_excel');
       setTimeout(() => {
         setDownloading(false);
+        setDownloadingType('');
         setDownloadSuccess(false);
       }, 1500);
     } catch (error) {
@@ -1486,15 +1598,19 @@ const CustomerWiseReport = () => {
       const errMsg = error.response?.data?.message || 'Failed to download customer wise report';
       toast.error(errMsg);
     } finally {
-      if (!success) setDownloading(false);
+      if (!success) {
+        setDownloading(false);
+        setDownloadingType('');
+      }
     }
   };
 
-  const handleDownloadCwPdf = async () => {
+  const handleDownloadCwPartyPdf = async () => {
     if (!checkDownloadLimit(user, 'cw_pdf', 'Customer Wise PDF')) return;
     let success = false;
     try {
       setDownloading(true);
+      setDownloadingType('party_pdf');
       setDownloadSuccess(false);
 
       let histMonth = '', histYear = '', isHist = false;
@@ -1577,7 +1693,7 @@ const CustomerWiseReport = () => {
         doc.text('A-07, 22 Godown industrial Area, Main Road, Jaipur - 302006 | Ph: 0141-3100030', tx, 18);
 
         doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(50, 50, 50);
-        doc.text(`Customer Wise Sales Report  |  Period: ${displayPeriod}`, tx, 23);
+        doc.text(`Customer Wise Sales Report (Party Wise)  |  Period: ${displayPeriod}`, tx, 23);
 
         doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(70, 70, 130);
         doc.text(`Company / Division: ${displayCompany}`, tx, 28);
@@ -1736,24 +1852,332 @@ const CustomerWiseReport = () => {
       }
 
       const divLabel = displayCompany || 'CW';
-      doc.save(`CW_CustomerWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      doc.save(`CW_PartyWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       success = true;
       setDownloadSuccess(true);
       recordDownloadSuccess(user?.id || user?._id, 'cw_pdf');
-      toast.success('Customer Wise PDF downloaded successfully!');
-      setTimeout(() => { setDownloading(false); setDownloadSuccess(false); }, 1500);
+      toast.success('Party Wise PDF downloaded successfully!');
+      setTimeout(() => { setDownloading(false); setDownloadingType(''); setDownloadSuccess(false); }, 1500);
     } catch (error) {
       console.error('CW PDF error:', error);
-      const errMsg = error.response?.data?.message || 'Failed to generate Customer Wise PDF';
+      const errMsg = error.response?.data?.message || 'Failed to generate Party Wise PDF';
       toast.error(errMsg);
     } finally {
-      if (!success) setDownloading(false);
+      if (!success) {
+        setDownloading(false);
+        setDownloadingType('');
+      }
     }
   };
+
+  const handleDownloadCwProductPdf = async () => {
+    if (!checkDownloadLimit(user, 'cw_pdf', 'Customer Wise PDF')) return;
+    let success = false;
+    try {
+      setDownloading(true);
+      setDownloadingType('product_pdf');
+      setDownloadSuccess(false);
+
+      let histMonth = '', histYear = '', isHist = false;
+      if (selectedStatementPeriod) {
+        const parts = selectedStatementPeriod.split('|');
+        histMonth = parts[0] || '';
+        histYear = parts[1] || '';
+        isHist = parts[2] === 'true';
+      }
+
+      const res = await representativesAPI.getCustomerWiseAll({
+        mfacCodeFilter: selectedMfac,
+        isHistorical: isHist ? 'true' : 'false',
+        reportMonth: histMonth,
+        reportYear: histYear,
+        downloadType: 'cw_pdf'
+      });
+
+      const allData = res.data.data || [];
+      if (allData.length === 0) { toast.warning('No data to download'); return; }
+
+      let displayCompany = '';
+      if (res.data.divisionName) {
+        displayCompany = res.data.divisionName;
+      } else if (res.data.companyName && res.data.companyName !== 'All Companies') {
+        displayCompany = res.data.companyName;
+      } else if (selectedMfac) {
+        const found = manufacturers.find(m => m.code === selectedMfac);
+        displayCompany = found ? `${found.name} (${found.code})` : selectedMfac;
+      } else if (allData[0]?.companyDivision) {
+        displayCompany = allData[0].companyDivision;
+      } else if (manufacturers.length === 1 && manufacturers[0]?.name) {
+        displayCompany = manufacturers[0].name;
+      } else if (user?.name) {
+        displayCompany = user.name;
+      } else {
+        displayCompany = 'All Divisions';
+      }
+
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const rMonth = histMonth || res.data.reportMonth || '';
+      const rYear = histYear || res.data.reportYear || '';
+      const displayPeriod = `${rMonth} ${rYear}`.trim() || 'Current';
+
+      // Group data by Product (Item)
+      const productMap = new Map();
+      allData.forEach(item => {
+        const key = (item.itemName ? String(item.itemName).trim() : '') || (item.itemCode ? String(item.itemCode).trim() : 'Unknown Product');
+        if (!productMap.has(key)) {
+          productMap.set(key, {
+            itemCode: item.itemCode || '',
+            itemName: item.itemName || 'Unknown Item',
+            packName: item.packName || item.pack || '',
+            companyDivision: item.companyDivision || '',
+            buyers: []
+          });
+        }
+        productMap.get(key).buyers.push(item);
+      });
+
+      // Sort products alphabetically
+      const products = Array.from(productMap.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
+
+      const img = await loadImage('/a.png');
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageW = doc.internal.pageSize.width;
+      const pageH = doc.internal.pageSize.height;
+
+      const drawMainHeader = () => {
+        const logoW = 14;
+        const logoH = img ? (img.height / img.width) * logoW : 0;
+        if (img) doc.addImage(img, 'PNG', 12, 8, logoW, logoH);
+        const tx = img ? 12 + logoW + 4 : 12;
+
+        doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 80);
+        doc.text('Tara Medicos Pvt Ltd, Jaipur', tx, 13);
+
+        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 100, 100);
+        doc.text('A-07, 22 Godown industrial Area, Main Road, Jaipur - 302006 | Ph: 0141-3100030', tx, 18);
+
+        doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(50, 50, 50);
+        doc.text(`Product Wise Sales Report  |  Period: ${displayPeriod}`, tx, 23);
+
+        doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(70, 70, 130);
+        doc.text(`Company / Division: ${displayCompany}`, tx, 28);
+
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(140, 140, 140);
+        doc.text(`Date: ${dateStr}`, pageW - 12, 13, { align: 'right' });
+
+        doc.setDrawColor(99, 102, 241);
+        doc.setLineWidth(0.5);
+        doc.line(12, 31, pageW - 12, 31);
+        doc.setTextColor(0, 0, 0);
+      };
+
+      drawMainHeader();
+      let curY = 35;
+
+      products.forEach((prod, pi) => {
+        if (curY > pageH - 45) {
+          doc.addPage();
+          curY = 16;
+        }
+
+        // Product Banner Bar
+        doc.setFillColor(243, 244, 254);
+        doc.roundedRect(12, curY, pageW - 24, 8.5, 1.5, 1.5, 'F');
+
+        doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 90);
+        doc.text(`${pi + 1}. ${prod.itemName}`, 15, curY + 5.8);
+
+        const packInfo = prod.packName ? `Pack: ${prod.packName}` : '';
+        const codeInfo = prod.itemCode ? `Code: ${prod.itemCode}` : '';
+        const rightBadge = [packInfo, codeInfo].filter(Boolean).join('  |  ');
+        if (rightBadge) {
+          doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(99, 102, 241);
+          doc.text(rightBadge, pageW - 15, curY + 5.8, { align: 'right' });
+        }
+        curY += 11;
+
+        // Table definition for buyers
+        const tableHead = [['#', 'Customer / Chemist Name', 'City', 'Qty', 'Sch.Qty', 'Rate', 'Amount']];
+        const tableBody = prod.buyers.map((cust, idx) => {
+          const qty = Math.round(Number(cust.qty) || 0);
+          const schQty = Math.round(Number(cust.schemeQty) || 0);
+          const rate = Number(cust.saleRate || 0);
+          const amount = (Number(cust.qty) || 0) * (Number(cust.saleRate) || 0);
+          const custDisplayName = cust.customerName || (cust.customerCode ? `Code: ${cust.customerCode}` : '-');
+          return [
+            idx + 1,
+            custDisplayName,
+            cust.customerCity || '-',
+            qty,
+            schQty,
+            rate > 0 ? rate.toFixed(2) : '0.00',
+            amount.toFixed(2)
+          ];
+        });
+
+        const prodTotalQty = prod.buyers.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+        const prodTotalSchQty = prod.buyers.reduce((s, i) => s + (Number(i.schemeQty) || 0), 0);
+        const prodTotalAmt = prod.buyers.reduce((s, i) => s + ((Number(i.qty) || 0) * (Number(i.saleRate) || 0)), 0);
+
+        autoTable(doc, {
+          startY: curY,
+          head: tableHead,
+          body: tableBody,
+          foot: [['', `Total (${prod.buyers.length} ${prod.buyers.length === 1 ? 'buyer' : 'buyers'})`, '', Math.round(prodTotalQty), Math.round(prodTotalSchQty), '', prodTotalAmt.toFixed(2)]],
+          showFoot: 'lastPage',
+          margin: { top: 16, bottom: 14, left: 12, right: 12 },
+          styles: { fontSize: 7.5, cellPadding: 1.8, valign: 'middle', overflow: 'linebreak' },
+          headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.8 },
+          footStyles: { fillColor: [240, 243, 255], textColor: [30, 30, 90], fontStyle: 'bold', fontSize: 7.8 },
+          columnStyles: {
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 'auto', halign: 'left' },
+            2: { cellWidth: 26, halign: 'left' },
+            3: { cellWidth: 18, halign: 'right' },
+            4: { cellWidth: 18, halign: 'right' },
+            5: { cellWidth: 22, halign: 'right' },
+            6: { cellWidth: 26, halign: 'right' }
+          },
+          didParseCell: (data) => {
+            if ([3, 4, 5, 6].includes(data.column.index)) {
+              data.cell.styles.halign = 'right';
+            } else if (data.column.index === 0) {
+              data.cell.styles.halign = 'center';
+            } else {
+              data.cell.styles.halign = 'left';
+            }
+            if (data.section === 'foot') {
+              data.cell.styles.fontStyle = 'bold';
+              if (data.column.index === 6) {
+                data.cell.styles.textColor = [16, 120, 60];
+              }
+            }
+          }
+        });
+
+        curY = doc.lastAutoTable.finalY + 6;
+        if (pi < products.length - 1 && curY < pageH - 25) {
+          doc.setDrawColor(225, 225, 235);
+          doc.setLineWidth(0.3);
+          doc.line(12, curY - 2, pageW - 12, curY - 2);
+        }
+      });
+
+      // Overall Grand Total Summary
+      const grandTotalQty = allData.reduce((s, i) => s + (Number(i.qty) || 0), 0);
+      const grandTotalSchQty = allData.reduce((s, i) => s + (Number(i.schemeQty) || 0), 0);
+      const grandTotalAmt = allData.reduce((s, i) => s + ((Number(i.qty) || 0) * (Number(i.saleRate) || 0)), 0);
+
+      if (curY > pageH - 35) {
+        doc.addPage();
+        curY = 20;
+      } else {
+        curY += 3;
+      }
+
+      doc.setFillColor(238, 242, 255);
+      doc.setDrawColor(99, 102, 241);
+      doc.setLineWidth(0.6);
+      doc.roundedRect(12, curY, pageW - 24, 16, 2, 2, 'FD');
+
+      doc.setFontSize(9.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 90);
+      doc.text(`OVERALL GRAND TOTAL  (${products.length} Products, ${allData.length} Transactions)`, 16, curY + 6);
+
+      doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(60, 60, 110);
+      doc.text(`Total Qty: ${Math.round(grandTotalQty)}`, 16, curY + 12);
+      doc.text(`Total Sch. Qty: ${Math.round(grandTotalSchQty)}`, 70, curY + 12);
+
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 120, 60);
+      doc.text(`Total Value: Rs ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
+
+      // Page numbers & footer
+      const totalPages = doc.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        if (i > 1) {
+          doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(130, 130, 130);
+          doc.text(`Product Wise Sales Report - ${displayCompany} (${displayPeriod})`, 12, 10);
+          doc.setDrawColor(220, 220, 230);
+          doc.setLineWidth(0.3);
+          doc.line(12, 12, pageW - 12, 12);
+        }
+        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(150, 150, 150);
+        doc.text('Tara Medicos Pvt Ltd, Jaipur', 12, pageH - 7);
+        doc.text(`Page ${i} of ${totalPages}`, pageW - 12, pageH - 7, { align: 'right' });
+      }
+
+      const divLabel = displayCompany || 'CW';
+      doc.save(`CW_ProductWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      success = true;
+      setDownloadSuccess(true);
+      recordDownloadSuccess(user?.id || user?._id, 'cw_pdf');
+      toast.success('Product Wise PDF downloaded successfully!');
+      setTimeout(() => { setDownloading(false); setDownloadingType(''); setDownloadSuccess(false); }, 1500);
+    } catch (error) {
+      console.error('CW Product PDF error:', error);
+      const errMsg = error.response?.data?.message || 'Failed to generate Product Wise PDF';
+      toast.error(errMsg);
+    } finally {
+      if (!success) {
+        setDownloading(false);
+        setDownloadingType('');
+      }
+    }
+  };
+
 
   return (
     <div className="animate-slide-up">
       <style>{`
+        .cw-download-actions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        .cw-btn-dl {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          font-size: 13px;
+          font-weight: 600;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+        }
+        .cw-btn-dl:hover:not(:disabled) {
+          transform: translateY(-1px);
+        }
+        @media (max-width: 600px) {
+          .cw-download-actions {
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 8px !important;
+            margin-top: 10px;
+          }
+          .cw-btn-dl {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 10px 14px !important;
+            font-size: 13px !important;
+          }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+          .cw-download-actions {
+            width: 100%;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            margin-top: 8px;
+          }
+          .cw-btn-dl {
+            flex: 1 1 calc(50% - 8px);
+            justify-content: center !important;
+          }
+        }
         @media (max-width: 768px) {
           .cw-filters-container {
             flex-direction: column !important;
@@ -1810,24 +2234,47 @@ const CustomerWiseReport = () => {
             )}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="cw-download-actions">
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary btn-sm cw-btn-dl"
             onClick={handleDownloadExcel}
             disabled={downloading || loading}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px' }}
+            title="Download Customer Wise Excel report"
           >
-            <FiDownload size={15} />
-            {downloading ? 'Downloading...' : 'Download Excel'}
+            <FiDownload size={14} />
+            {downloadingType === 'excel' ? 'Downloading...' : 'Download Excel'}
           </button>
+
           <button
-            className="btn btn-sm"
-            onClick={handleDownloadCwPdf}
+            className="btn btn-sm cw-btn-dl"
+            onClick={handleDownloadCwPartyPdf}
             disabled={downloading || loading}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '13px', background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+            style={{
+              background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+              color: '#fff',
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.25)'
+            }}
+            title="Download PDF grouped by Party / Customer with products under each party"
           >
-            <FiFileText size={15} />
-            {downloading ? 'Generating...' : 'Download PDF'}
+            <FiUsers size={14} />
+            {downloadingType === 'party_pdf' ? 'Generating Party PDF...' : 'Party Wise PDF'}
+          </button>
+
+          <button
+            className="btn btn-sm cw-btn-dl"
+            onClick={handleDownloadCwProductPdf}
+            disabled={downloading || loading}
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+              color: '#fff',
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(99, 102, 241, 0.25)'
+            }}
+            title="Download PDF grouped by Product / Medicine with buyers under each item"
+          >
+            <FiPackage size={14} />
+            {downloadingType === 'product_pdf' ? 'Generating Product PDF...' : 'Product Wise PDF'}
           </button>
         </div>
       </div>
@@ -2680,6 +3127,35 @@ const SsSummary = () => {
           </div>
         ) : (
           <>
+            {/* Mobile Summary KPI Strip for Fast Overview */}
+            {grandTotals && (
+              <div className="statement-mobile-kpis">
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Opening Stock</div>
+                  <div className="kpi-value">{grandTotals.totalOpQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub">₹{Number(grandTotals.totalOpVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Purchase</div>
+                  <div className="kpi-value">{grandTotals.totalPurQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub">₹{Number(grandTotals.totalPurVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Total Sales</div>
+                  <div className="kpi-value" style={{ color: '#10b981' }}>{grandTotals.totalSaleQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub" style={{ color: '#10b981' }}>₹{Number(grandTotals.totalSaleVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+                <div className="statement-kpi-card">
+                  <div className="kpi-label">Closing Stock</div>
+                  <div className="kpi-value" style={{ color: 'var(--accent)' }}>{grandTotals.totalBalQty ?? 0} <span className="kpi-unit">pcs</span></div>
+                  <div className="kpi-sub" style={{ color: 'var(--accent)' }}>₹{Number(grandTotals.totalBalVal || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}</div>
+                </div>
+              </div>
+            )}
+            <div className="mobile-table-hint">
+              <span>⇄ Swipe horizontally to view all columns</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Item name is pinned</span>
+            </div>
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <table className="table scrollable" style={{ width: '100%', minWidth: '1050px' }}>
                 <thead>
@@ -3058,6 +3534,10 @@ const RepresentativePurchaseOrder = () => {
         </div>
       ) : (
         <div className="card">
+          <div className="mobile-table-hint">
+            <span>⇄ Swipe horizontally to view full PO details</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>PO number is pinned</span>
+          </div>
           <div className="table-container">
             <table className="table scrollable" style={{ minWidth: '950px' }}>
               <thead>
@@ -3336,6 +3816,10 @@ const NonMovingStockReport = ({ isAdmin = false }) => {
           </div>
         ) : (
           <>
+            <div className="mobile-table-hint">
+              <span>⇄ Swipe horizontally to view all columns</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Item name is pinned</span>
+            </div>
             <div className="table-container" style={{ overflowX: 'auto' }}>
               <table className="table scrollable" style={{ width: '100%', minWidth: '1050px' }}>
                 <thead>
