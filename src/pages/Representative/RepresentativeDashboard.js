@@ -9,6 +9,7 @@ import { FiHome, FiUser, FiShield, FiPhone, FiPackage, FiSearch, FiX, FiChevronL
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { saveBlobOrBuffer, savePdfDoc } from '../../utils/fileDownloader';
 
 const loadImage = (url) => {
   return new Promise((resolve) => {
@@ -156,16 +157,10 @@ const downloadStyledExcel = (title, filename, headerRows, dataRows, totalRows, v
 
   XLSX.utils.book_append_sheet(wb, ws, title.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 31));
 
-  // Blob-based download (most reliable across browsers)
+  // Universal download (browser + Android mobile app)
   const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename.endsWith('.xlsx') ? filename : filename.replace(/\.[^.]+$/, '.xlsx');
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+  const safeFileName = filename.endsWith('.xlsx') ? filename : filename.replace(/\.[^.]+$/, '.xlsx');
+  saveBlobOrBuffer(wbout, safeFileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 };
 
 const getNavItems = (user) => {
@@ -1011,7 +1006,7 @@ const RepresentativeStatement = () => {
       }
 
       const divLabel = companyName || 'S&S_Statement';
-      doc.save(`S&S_Statement_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
+      savePdfDoc(doc, `S&S_Statement_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
       success = true;
       setDownloadSuccess(true);
       recordDownloadSuccess(user?.id || user?._id, 'ss_pdf');
@@ -1852,7 +1847,7 @@ const CustomerWiseReport = () => {
       }
 
       const divLabel = displayCompany || 'CW';
-      doc.save(`CW_PartyWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      savePdfDoc(doc, `CW_PartyWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       success = true;
       setDownloadSuccess(true);
       recordDownloadSuccess(user?.id || user?._id, 'cw_pdf');
@@ -2126,7 +2121,7 @@ const CustomerWiseReport = () => {
       }
 
       const divLabel = displayCompany || 'CW';
-      doc.save(`CW_ProductWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      savePdfDoc(doc, `CW_ProductWise_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       success = true;
       setDownloadSuccess(true);
       recordDownloadSuccess(user?.id || user?._id, 'cw_pdf');
@@ -2995,7 +2990,7 @@ const SsSummary = () => {
       }
 
       const divLabel = companyName || 'SS_Summary';
-      doc.save(`S&S_Summary_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
+      savePdfDoc(doc, `S&S_Summary_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
       success = true;
       setDownloadSuccess(true);
       recordDownloadSuccess(user?.id || user?._id, 'summary_pdf');
@@ -3490,7 +3485,7 @@ const RepresentativePurchaseOrder = () => {
       });
 
       const fileName = `Purchase_Order_${String(companyName).replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
-      doc.save(fileName);
+      savePdfDoc(doc, fileName);
       toast.success('Purchase Order PDF downloaded successfully!');
     } catch (error) {
       console.error('Download PO PDF error:', error);

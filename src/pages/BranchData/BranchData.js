@@ -3,6 +3,7 @@ import { representativesAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 import { FiUploadCloud, FiDownload, FiSearch, FiX, FiChevronDown, FiChevronLeft, FiChevronRight, FiFileText, FiTrash2 } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
+import { savePdfDoc } from '../../utils/fileDownloader';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -767,7 +768,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
       }
 
       const divLabel = displayCompany || 'Branch_CW';
-      doc.save(`Branch_CW_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      savePdfDoc(doc, `Branch_CW_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${displayPeriod.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
       toast.success('Branch CW PDF downloaded successfully!');
     } catch (err) {
       console.error('Branch CW PDF error:', err);

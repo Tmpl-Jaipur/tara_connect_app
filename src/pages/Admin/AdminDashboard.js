@@ -7,6 +7,7 @@ import BranchData from '../BranchData/BranchData';
 import { NonMovingStockReport } from '../Representative/RepresentativeDashboard';
 import { FiHome, FiUsers, FiPackage, FiShoppingCart, FiSearch, FiTrash2, FiToggleLeft, FiToggleRight, FiPlus, FiMessageSquare, FiDownload, FiX, FiList, FiShield, FiDollarSign, FiUploadCloud, FiChevronLeft, FiChevronRight, FiChevronDown, FiClock, FiSettings, FiSlash, FiCheckCircle, FiArchive, FiLayers, FiFileText } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
+import { saveBlobOrBuffer, savePdfDoc } from '../../utils/fileDownloader';
 import JSZip from 'jszip';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -232,7 +233,8 @@ const AdminOverview = () => {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, isActive ? 'Active Buyers' : 'Inactive Buyers');
       const fileName = isActive ? 'Active_Buyers.xlsx' : 'Inactive_Buyers.xlsx';
-      XLSX.writeFile(wb, fileName);
+      const wbout1 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout1, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success(`${isActive ? 'Active' : 'Inactive'} buyers list exported.`);
     } catch (err) {
       toast.error('Failed to export buyer details.');
@@ -676,7 +678,8 @@ const AdminUsers = () => {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Users');
       const fileName = 'Users.xlsx';
-      XLSX.writeFile(wb, fileName);
+      const wbout2 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout2, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     };
   const fetchUsers = async (isLoadMore = false) => {
     try {
@@ -1724,7 +1727,8 @@ const AdminOrders = () => {
     const fileName = orderList.length === 1
       ? `${formatOrderNo(orderList[0].orderNumber, orderList[0].buyer).replace(/\s/g, '_')}.xlsx`
       : 'Orders.xlsx';
-    XLSX.writeFile(wb, fileName);
+    const wbout3 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveBlobOrBuffer(wbout3, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   };
   
   const downloadSelected = async () => {
@@ -2165,7 +2169,8 @@ const AdminOutstanding = () => {
       const ws = XLSX.utils.json_to_sheet(exportRows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Outstanding');
-      XLSX.writeFile(wb, 'Outstanding_Report.xlsx');
+      const wbout4 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout4, 'Outstanding_Report.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success(`Exported ${allRecords.length.toLocaleString()} records successfully!`);
     } catch (error) {
       console.error('Failed to export outstanding data:', error);
@@ -3112,7 +3117,8 @@ const AdminRepresentatives = () => {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'SS_Summary');
       const fileName = `SS_Summary_${mfacLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${month || 'All'}_${year || new Date().getFullYear()}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      const wbout5 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout5, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success('S&S Summary exported successfully');
     } catch (error) {
       console.error('Failed to export S&S Summary Excel:', error);
@@ -3235,7 +3241,7 @@ const AdminRepresentatives = () => {
       }
 
       const divLabel = mfacLabel || 'SS_Summary';
-      doc.save(`S&S_Summary_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
+      savePdfDoc(doc, `S&S_Summary_${divLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`);
       toast.success('S&S Summary PDF downloaded successfully');
     } catch (error) {
       console.error('PDF generation error:', error);
@@ -3468,7 +3474,8 @@ const AdminRepresentatives = () => {
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
       
       const fileName = `Customer_Wise_${companyName.replace(/[^a-zA-Z0-9]/g, '_')}_${month}_${year}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      const wbout6 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout6, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success('Customer Wise Report exported successfully');
     } catch (error) {
       console.error('Failed to export Customer Wise Excel:', error);
@@ -3605,7 +3612,8 @@ const AdminRepresentatives = () => {
       XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
       const fileName = `SS_Statement_${mfacLabel.replace(/[^a-zA-Z0-9]/g, '_')}_${month || 'All'}_${year || new Date().getFullYear()}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      const wbout7 = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      saveBlobOrBuffer(wbout7, fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success('S&S Statement exported successfully');
     } catch (error) {
       console.error('Failed to export S&S Statement Excel:', error);
@@ -4310,14 +4318,7 @@ const AdminRepresentatives = () => {
       XLSX.utils.book_append_sheet(wb, ws, 'Representatives');
       // Use Blob-based download for reliable cross-browser file saving
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Representatives_Report.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1000);
+      saveBlobOrBuffer(wbout, 'Representatives_Report.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
       toast.success('Representatives report exported!');
     } catch (error) {
       console.error('Export error:', error);
