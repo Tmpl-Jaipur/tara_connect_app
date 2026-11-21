@@ -1833,7 +1833,7 @@ const CustomerWiseReport = () => {
       doc.text(`Total Sch. Qty: ${Math.round(grandTotalSchQty)}`, 70, curY + 12);
 
       doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 120, 60);
-      doc.text(`Total Value: Rs ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
+      doc.text(`Total Value: ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
 
       // Post-process all pages for accurate header runner and page count (Page X of Y)
       const totalPages = doc.getNumberOfPages();
@@ -1940,16 +1940,33 @@ const CustomerWiseReport = () => {
       // Sort products alphabetically
       const products = Array.from(productMap.values()).sort((a, b) => a.itemName.localeCompare(b.itemName));
 
+      const formatAddress = (addr, city) => {
+        const parts = [];
+        if (addr) parts.push(String(addr).trim());
+        if (city) {
+          const c = String(city).trim();
+          if (!addr || !String(addr).toLowerCase().includes(c.toLowerCase())) {
+            parts.push(c);
+          }
+        }
+        const combined = parts.join(', ')
+          .replace(/[\r\n]+/g, ' ')
+          .replace(/\s*,\s*,+/g, ', ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        return combined || '-';
+      };
+
       const img = await loadImage('/a.png');
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
       const pageW = doc.internal.pageSize.width;
       const pageH = doc.internal.pageSize.height;
 
       const drawMainHeader = () => {
         const logoW = 14;
         const logoH = img ? (img.height / img.width) * logoW : 0;
-        if (img) doc.addImage(img, 'PNG', 12, 8, logoW, logoH);
-        const tx = img ? 12 + logoW + 4 : 12;
+        if (img) doc.addImage(img, 'PNG', 10, 8, logoW, logoH);
+        const tx = img ? 10 + logoW + 4 : 10;
 
         doc.setFontSize(13); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 80);
         doc.text('Tara Medicos Pvt Ltd, Jaipur', tx, 13);
@@ -1961,14 +1978,14 @@ const CustomerWiseReport = () => {
         doc.text(`Product Wise Sales Report  |  Period: ${displayPeriod}`, tx, 23);
 
         doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(70, 70, 130);
-        doc.text(`Company / Division: ${displayCompany}`, tx, 28);
+        doc.text(`Company: ${displayCompany}`, tx, 28);
 
         doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(140, 140, 140);
-        doc.text(`Date: ${dateStr}`, pageW - 12, 13, { align: 'right' });
+        doc.text(`Date: ${dateStr}`, pageW - 10, 13, { align: 'right' });
 
         doc.setDrawColor(99, 102, 241);
         doc.setLineWidth(0.5);
-        doc.line(12, 31, pageW - 12, 31);
+        doc.line(10, 31, pageW - 10, 31);
         doc.setTextColor(0, 0, 0);
       };
 
@@ -1976,39 +1993,40 @@ const CustomerWiseReport = () => {
       let curY = 35;
 
       products.forEach((prod, pi) => {
-        if (curY > pageH - 45) {
+        if (curY > pageH - 35) {
           doc.addPage();
           curY = 16;
         }
 
         // Product Banner Bar
         doc.setFillColor(243, 244, 254);
-        doc.roundedRect(12, curY, pageW - 24, 8.5, 1.5, 1.5, 'F');
+        doc.roundedRect(10, curY, pageW - 20, 8.5, 1.5, 1.5, 'F');
 
         doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 90);
-        doc.text(`${pi + 1}. ${prod.itemName}`, 15, curY + 5.8);
+        doc.text(`${pi + 1}. ${prod.itemName}`, 13, curY + 5.8);
 
         const packInfo = prod.packName ? `Pack: ${prod.packName}` : '';
         const codeInfo = prod.itemCode ? `Code: ${prod.itemCode}` : '';
         const rightBadge = [packInfo, codeInfo].filter(Boolean).join('  |  ');
         if (rightBadge) {
           doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(99, 102, 241);
-          doc.text(rightBadge, pageW - 15, curY + 5.8, { align: 'right' });
+          doc.text(rightBadge, pageW - 13, curY + 5.8, { align: 'right' });
         }
         curY += 11;
 
         // Table definition for buyers
-        const tableHead = [['#', 'Customer / Chemist Name', 'City', 'Qty', 'Sch.Qty', 'Rate', 'Amount']];
+        const tableHead = [['#', 'Customer / Chemist Name', 'Address', 'Qty', 'Sch.Qty', 'Rate', 'Amount']];
         const tableBody = prod.buyers.map((cust, idx) => {
           const qty = Math.round(Number(cust.qty) || 0);
           const schQty = Math.round(Number(cust.schemeQty) || 0);
           const rate = Number(cust.saleRate || 0);
           const amount = (Number(cust.qty) || 0) * (Number(cust.saleRate) || 0);
           const custDisplayName = cust.customerName || (cust.customerCode ? `Code: ${cust.customerCode}` : '-');
+          const fullAddr = formatAddress(cust.customerAddress, cust.customerCity);
           return [
             idx + 1,
             custDisplayName,
-            cust.customerCity || '-',
+            fullAddr,
             qty,
             schQty,
             rate > 0 ? rate.toFixed(2) : '0.00',
@@ -2026,18 +2044,18 @@ const CustomerWiseReport = () => {
           body: tableBody,
           foot: [['', `Total (${prod.buyers.length} ${prod.buyers.length === 1 ? 'buyer' : 'buyers'})`, '', Math.round(prodTotalQty), Math.round(prodTotalSchQty), '', prodTotalAmt.toFixed(2)]],
           showFoot: 'lastPage',
-          margin: { top: 16, bottom: 14, left: 12, right: 12 },
-          styles: { fontSize: 7.5, cellPadding: 1.8, valign: 'middle', overflow: 'linebreak' },
-          headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.8 },
-          footStyles: { fillColor: [240, 243, 255], textColor: [30, 30, 90], fontStyle: 'bold', fontSize: 7.8 },
+          margin: { top: 16, bottom: 14, left: 10, right: 10 },
+          styles: { fontSize: 7.2, cellPadding: 1.8, valign: 'middle', overflow: 'linebreak' },
+          headStyles: { fillColor: [99, 102, 241], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 7.5 },
+          footStyles: { fillColor: [240, 243, 255], textColor: [30, 30, 90], fontStyle: 'bold', fontSize: 7.5 },
           columnStyles: {
             0: { cellWidth: 8, halign: 'center' },
-            1: { cellWidth: 'auto', halign: 'left' },
-            2: { cellWidth: 26, halign: 'left' },
-            3: { cellWidth: 18, halign: 'right' },
-            4: { cellWidth: 18, halign: 'right' },
+            1: { cellWidth: 54, halign: 'left' },
+            2: { cellWidth: 125, halign: 'left' },
+            3: { cellWidth: 22, halign: 'right' },
+            4: { cellWidth: 22, halign: 'right' },
             5: { cellWidth: 22, halign: 'right' },
-            6: { cellWidth: 26, halign: 'right' }
+            6: { cellWidth: 24, halign: 'right' }
           },
           didParseCell: (data) => {
             if ([3, 4, 5, 6].includes(data.column.index)) {
@@ -2060,7 +2078,7 @@ const CustomerWiseReport = () => {
         if (pi < products.length - 1 && curY < pageH - 25) {
           doc.setDrawColor(225, 225, 235);
           doc.setLineWidth(0.3);
-          doc.line(12, curY - 2, pageW - 12, curY - 2);
+          doc.line(10, curY - 2, pageW - 10, curY - 2);
         }
       });
 
@@ -2069,7 +2087,7 @@ const CustomerWiseReport = () => {
       const grandTotalSchQty = allData.reduce((s, i) => s + (Number(i.schemeQty) || 0), 0);
       const grandTotalAmt = allData.reduce((s, i) => s + ((Number(i.qty) || 0) * (Number(i.saleRate) || 0)), 0);
 
-      if (curY > pageH - 35) {
+      if (curY > pageH - 30) {
         doc.addPage();
         curY = 20;
       } else {
@@ -2079,17 +2097,17 @@ const CustomerWiseReport = () => {
       doc.setFillColor(238, 242, 255);
       doc.setDrawColor(99, 102, 241);
       doc.setLineWidth(0.6);
-      doc.roundedRect(12, curY, pageW - 24, 16, 2, 2, 'FD');
+      doc.roundedRect(10, curY, pageW - 20, 16, 2, 2, 'FD');
 
       doc.setFontSize(9.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(30, 30, 90);
-      doc.text(`OVERALL GRAND TOTAL  (${products.length} Products, ${allData.length} Transactions)`, 16, curY + 6);
+      doc.text(`OVERALL GRAND TOTAL  (${products.length} Products, ${allData.length} Transactions)`, 14, curY + 6);
 
       doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(60, 60, 110);
-      doc.text(`Total Qty: ${Math.round(grandTotalQty)}`, 16, curY + 12);
-      doc.text(`Total Sch. Qty: ${Math.round(grandTotalSchQty)}`, 70, curY + 12);
+      doc.text(`Total Qty: ${Math.round(grandTotalQty)}`, 14, curY + 12);
+      doc.text(`Total Sch. Qty: ${Math.round(grandTotalSchQty)}`, 75, curY + 12);
 
       doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 120, 60);
-      doc.text(`Total Value: Rs ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
+      doc.text(`Total Value: ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 14, curY + 10, { align: 'right' });
 
       // Page numbers & footer
       const totalPages = doc.getNumberOfPages();
@@ -2097,14 +2115,14 @@ const CustomerWiseReport = () => {
         doc.setPage(i);
         if (i > 1) {
           doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(130, 130, 130);
-          doc.text(`Product Wise Sales Report - ${displayCompany} (${displayPeriod})`, 12, 10);
+          doc.text(`Product Wise Sales Report - ${displayCompany} (${displayPeriod})`, 10, 10);
           doc.setDrawColor(220, 220, 230);
           doc.setLineWidth(0.3);
-          doc.line(12, 12, pageW - 12, 12);
+          doc.line(10, 12, pageW - 10, 12);
         }
         doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); doc.setTextColor(150, 150, 150);
-        doc.text('Tara Medicos Pvt Ltd, Jaipur', 12, pageH - 7);
-        doc.text(`Page ${i} of ${totalPages}`, pageW - 12, pageH - 7, { align: 'right' });
+        doc.text('Tara Medicos Pvt Ltd, Jaipur', 10, pageH - 5);
+        doc.text(`Page ${i} of ${totalPages}`, pageW - 10, pageH - 5, { align: 'right' });
       }
 
       const divLabel = displayCompany || 'CW';
@@ -2479,7 +2497,7 @@ const CustomerWiseReport = () => {
                       )}
                       {amount > 0 && (
                         <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '6px', padding: '3px 10px', fontSize: '12px', fontWeight: 700 }}>
-                          ₹{Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       )}
                       {Number(schemeQty) > 0 && (
@@ -2501,7 +2519,7 @@ const CustomerWiseReport = () => {
                           const isInt = field.type === 'number' || field.type === 'scheme-qty';
                           displayVal = isInt
                             ? Math.round(numVal || 0)
-                            : `₹${(numVal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                            : `${(numVal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                         }
                         return (
                           <div key={field.key} style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', fontSize: '13px' }}>

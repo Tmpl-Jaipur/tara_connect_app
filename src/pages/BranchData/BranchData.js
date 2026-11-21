@@ -572,7 +572,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
       } else if (cwManufacturers[0]?.name) {
         displayCompany = cwManufacturers[0].name;
       } else {
-        displayCompany = 'All Divisions';
+        displayCompany = 'All Companies';
       }
 
       // Group data by customer code
@@ -614,7 +614,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
         doc.text(` Customer Wise Sales Report  |  Period: ${displayPeriod}`, tx, 23);
 
         doc.setFontSize(8.5); doc.setFont('helvetica', 'bold'); doc.setTextColor(70, 70, 130);
-        doc.text(`Company / Division: ${displayCompany}`, tx, 28);
+        doc.text(`Company: ${displayCompany}`, tx, 28);
 
         doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(140, 140, 140);
         doc.text(`Date: ${dateStr}`, pageW - 12, 13, { align: 'right' });
@@ -748,7 +748,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
       doc.text(`Total Sch. Qty: ${Math.round(grandTotalSchQty)}`, 70, curY + 12);
 
       doc.setFontSize(10); doc.setFont('helvetica', 'bold'); doc.setTextColor(16, 120, 60);
-      doc.text(`Total Value: Rs ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
+      doc.text(`Total Value: ${grandTotalAmt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, pageW - 16, curY + 10, { align: 'right' });
 
       // Post-process all pages for accurate header runner and page count (Page X of Y)
       const totalPages = doc.getNumberOfPages();
@@ -968,13 +968,13 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                         <td>{item.pack || '—'}</td>
                         <td>{item.mfacName || '—'}</td>
                         <td style={{ textAlign: 'right' }}>{item.opBalance || 0}</td>
-                        <td style={{ textAlign: 'right' }}>₹{Number(item.opValue || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right' }}>{Number(item.opValue || 0).toFixed(2)}</td>
                         <td style={{ textAlign: 'right' }}>{item.purQty || 0}</td>
-                        <td style={{ textAlign: 'right' }}>₹{Number(item.purValue || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right' }}>{Number(item.purValue || 0).toFixed(2)}</td>
                         <td style={{ textAlign: 'right', fontWeight: 600, color: '#10b981' }}>{item.saleQty || 0}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#10b981' }}>₹{Number(item.saleValue || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#10b981' }}>{Number(item.saleValue || 0).toFixed(2)}</td>
                         <td style={{ textAlign: 'right', fontWeight: 600 }}>{item.balQty || 0}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--accent)' }}>₹{Number(item.balValue || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--accent)' }}>{Number(item.balValue || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1005,19 +1005,19 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                          <td></td><td></td><td></td>
                          <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>-</td>
                          <td style={{ textAlign: 'right', color: 'var(--text-white)' }}>
-                           {'\u20b9'}{(ssGrandTotals ? Number(ssGrandTotals.totalOpVal || 0) : ssData.reduce((s, i) => s + (Number(i.opValue) || 0), 0)).toFixed(2)}
+                           {(ssGrandTotals ? Number(ssGrandTotals.totalOpVal || 0) : ssData.reduce((s, i) => s + (Number(i.opValue) || 0), 0)).toFixed(2)}
                          </td>
                          <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>-</td>
                          <td style={{ textAlign: 'right', color: 'var(--text-white)' }}>
-                           {'\u20b9'}{(ssGrandTotals ? Number(ssGrandTotals.totalPurVal || 0) : ssData.reduce((s, i) => s + (Number(i.purValue) || 0), 0)).toFixed(2)}
+                           {(ssGrandTotals ? Number(ssGrandTotals.totalPurVal || 0) : ssData.reduce((s, i) => s + (Number(i.purValue) || 0), 0)).toFixed(2)}
                          </td>
                          <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>-</td>
                          <td style={{ textAlign: 'right', fontWeight: 700, color: '#10b981' }}>
-                           {'\u20b9'}{(ssGrandTotals ? Number(ssGrandTotals.totalSaleVal || 0) : ssData.reduce((s, i) => s + (Number(i.saleValue) || 0), 0)).toFixed(2)}
+                           {(ssGrandTotals ? Number(ssGrandTotals.totalSaleVal || 0) : ssData.reduce((s, i) => s + (Number(i.saleValue) || 0), 0)).toFixed(2)}
                          </td>
                          <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>-</td>
                          <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--accent)' }}>
-                           {'\u20b9'}{(ssGrandTotals ? Number(ssGrandTotals.totalBalVal || 0) : ssData.reduce((s, i) => s + (Number(i.balValue) || 0), 0)).toFixed(2)}
+                           {(ssGrandTotals ? Number(ssGrandTotals.totalBalVal || 0) : ssData.reduce((s, i) => s + (Number(i.balValue) || 0), 0)).toFixed(2)}
                          </td>
                        </tr>
                      </tfoot>
@@ -1137,10 +1137,9 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
           ) : (
             <>
               <div className="table-container cw-branch-desktop-table" style={{ overflowX: 'auto' }}>
-                <table className="table scrollable" style={{ width: '100%', minWidth: '1600px' }}>
+                <table className="table scrollable" style={{ width: '100%', minWidth: '1500px' }}>
                   <thead>
                     <tr>
-                      <th>Division</th>
                       <th>Customer Code</th>
                       <th>Customer Name</th>
                       <th>City</th>
@@ -1156,7 +1155,6 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                   <tbody>
                     {cwData.map((item, idx) => (
                       <tr key={item._id || idx}>
-                        <td>{item.companyDivision || item.mfacCode || '—'}</td>
                         <td style={{ color: 'var(--accent)', fontWeight: 600 }}>{item.customerCode || '—'}</td>
                         <td style={{ color: 'var(--text-white)', fontWeight: 500 }}>{item.customerName || '—'}</td>
                         <td>{item.customerCity || '—'}</td>
@@ -1165,8 +1163,8 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                         <td>{item.packName || '—'}</td>
                         <td style={{ textAlign: 'right', fontWeight: 600 }}>{item.qty || 0}</td>
                         <td style={{ textAlign: 'right' }}>{item.schemeQty || 0}</td>
-                        <td style={{ textAlign: 'right' }}>₹{Number(item.saleRate || 0).toFixed(2)}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--accent)' }}>₹{Number(item.amount || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right' }}>{Number(item.saleRate || 0).toFixed(2)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--accent)' }}>{Number(item.amount || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1205,7 +1203,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                         Qty: {item.qty || 0}
                       </span>
                       <span style={{ background: 'rgba(16,185,129,0.12)', color: '#10b981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '6px', padding: '3px 10px', fontSize: '12px', fontWeight: 700 }}>
-                        ₹{Number(item.amount || 0).toFixed(2)}
+                        {Number(item.amount || 0).toFixed(2)}
                       </span>
                       {(item.schemeQty || 0) > 0 && (
                         <span style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '6px', padding: '3px 10px', fontSize: '12px', fontWeight: 700 }}>
@@ -1215,8 +1213,7 @@ const BranchData = ({ isAdmin = false, userPermissions = {} }) => {
                     </div>
                     {/* Other fields */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px', fontSize: '12px' }}>
-                      {(item.companyDivision || item.mfacCode) && <div><span style={{ color: 'var(--text-muted)' }}>Division: </span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{item.companyDivision || item.mfacCode}</span></div>}
-                      {item.saleRate > 0 && <div><span style={{ color: 'var(--text-muted)' }}>Sale Rate: </span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>₹{Number(item.saleRate || 0).toFixed(2)}</span></div>}
+                      {item.saleRate > 0 && <div><span style={{ color: 'var(--text-muted)' }}>Sale Rate: </span><span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{Number(item.saleRate || 0).toFixed(2)}</span></div>}
                     </div>
                   </div>
                 ))}
