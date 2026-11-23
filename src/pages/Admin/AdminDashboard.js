@@ -4337,7 +4337,7 @@ const AdminRepresentatives = () => {
               <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                 Upload and view S&S (Stock & Sales) monthly statements
                 {stmtReportStartDate && stmtReportEndDate && (
-                  <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
+                  <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
                     Period: {formatDate(stmtReportStartDate)} to {formatDate(stmtReportEndDate)}
                   </span>
                 )}
@@ -4350,7 +4350,7 @@ const AdminRepresentatives = () => {
                   const [month, year] = summarySelectedPeriod.split('|');
                   if (month && year) {
                     return (
-                      <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
+                      <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
                         Period: {month} {year}
                       </span>
                     );
@@ -4366,7 +4366,7 @@ const AdminRepresentatives = () => {
                   const [month, year] = cwSelectedPeriod.split('|');
                   if (month && year) {
                     return (
-                      <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
+                      <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)', marginLeft: '8px' }}>
                         Period: {month} {year} {getFormattedCwPeriod(month, year)}
                       </span>
                     );

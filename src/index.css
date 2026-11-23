@@ -1467,10 +1467,22 @@ h1, h2, h3, h4, h5, h6, .brand-title {
     width: 100%;
     max-width: 100% !important;
     border-radius: 20px 20px 0 0;
-    max-height: 85vh;
+    max-height: 90dvh;
+    display: flex;
+    flex-direction: column;
     animation: slideUpFromBottom 0.35s cubic-bezier(0.32, 0.94, 0.6, 1);
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
     border-bottom: none;
+  }
+  
+  .modal-body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto;
+  }
+
+  .modal-footer {
+    flex-shrink: 0;
   }
   
   [data-theme="light"] .modal {
@@ -1689,6 +1701,29 @@ h1, h2, h3, h4, h5, h6, .brand-title {
     color: #818cf8 !important;
   }
 
+  /* Dark Theme Mobile Header */
+  [data-theme="dark"] .mobile-header {
+    background: #0f172a !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+  [data-theme="dark"] .mobile-header h1 {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+  }
+  [data-theme="dark"] .mobile-header .menu-toggle {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+  }
+  [data-theme="dark"] .mobile-header .theme-toggle-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+  }
+
   /* Light Theme Bottom Nav */
   [data-theme="light"] .bottom-nav {
     background: rgba(255, 255, 255, 0.96) !important;
@@ -1714,6 +1749,11 @@ h1, h2, h3, h4, h5, h6, .brand-title {
 
 /* Mobile Screens (≤ 768px) */
 @media (max-width: 768px) {
+  /* Prevent mobile keyboard auto-zoom on iOS/Android WebViews */
+  input, select, textarea, .form-input, .form-select, .search-bar input {
+    font-size: 16px !important;
+  }
+
   .main-content {
     padding: 16px 12px calc(105px + env(safe-area-inset-bottom, 22px)) !important;
   }

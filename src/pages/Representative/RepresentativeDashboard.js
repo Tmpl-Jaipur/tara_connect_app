@@ -1035,7 +1035,7 @@ const RepresentativeStatement = () => {
           <p style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             View your opening balance, purchase, sales, and closing balance statements
             {reportMonth && reportYear && (
-              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
+              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
                 Period: {reportMonth} {reportYear} {reportStartDate && reportEndDate && `(${formatDate(reportStartDate)} to ${formatDate(reportEndDate)})`}
               </span>
             )}
@@ -2241,7 +2241,7 @@ const CustomerWiseReport = () => {
           <p style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             View which items were sold to which customers
             {reportMonth && reportYear && (
-              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
+              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
                 Period: {reportMonth} {reportYear} {getFormattedCwPeriod(reportMonth, reportYear)}
               </span>
             )}
@@ -3041,7 +3041,7 @@ const SsSummary = () => {
           <p style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             Summary of Stock & Sales Statement records
             {reportMonth && reportYear && (
-              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: '#000000', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
+              <span style={{ padding: '3px 10px', background: 'rgba(99, 102, 241, 0.15)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '13px', fontWeight: 700, border: '1px solid rgba(99,102,241,0.3)' }}>
                 Period: {reportMonth} {reportYear} {reportStartDate && reportEndDate && `(${formatDate(reportStartDate)} to ${formatDate(reportEndDate)})`}
               </span>
             )}

@@ -1,6 +1,6 @@
 {
   "name": "tara-connect-app",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "overrides": {
     "dompurify": ">=3.4.7",
