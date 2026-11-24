@@ -22,8 +22,10 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Enable WebView debugging for developer diagnostics
-        WebView.setWebContentsDebuggingEnabled(true);
+        // Enable WebView debugging only for debuggable builds (secure for release)
+        if (0 != (getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE)) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
         
         registerDownloader();
     }
@@ -56,6 +58,11 @@ public class MainActivity extends BridgeActivity {
             try {
                 if (base64Data == null || base64Data.isEmpty()) return;
                 
+                // Sanitize file name to prevent path traversal
+                String safeFileName = (fileName != null && !fileName.trim().isEmpty())
+                    ? new File(fileName).getName()
+                    : "downloaded_file";
+                
                 String cleanBase64 = base64Data;
                 if (cleanBase64.contains(",")) {
                     cleanBase64 = cleanBase64.substring(cleanBase64.indexOf(",") + 1);
@@ -66,7 +73,7 @@ public class MainActivity extends BridgeActivity {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     // Android 10+ (Scoped Storage / MediaStore Downloads)
                     ContentValues values = new ContentValues();
-                    values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+                    values.put(MediaStore.Downloads.DISPLAY_NAME, safeFileName);
                     values.put(MediaStore.Downloads.MIME_TYPE, mimeType);
                     values.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/TaraConnect");
 
@@ -81,12 +88,12 @@ public class MainActivity extends BridgeActivity {
 
                         android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
                         handler.post(() -> {
-                            Toast.makeText(context, "Downloaded: " + fileName, Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, "Downloaded: " + safeFileName, Toast.LENGTH_LONG).show();
                             try {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setDataAndType(uri, mimeType);
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(Intent.createChooser(intent, "Open " + fileName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                context.startActivity(Intent.createChooser(intent, "Open " + safeFileName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                             } catch (Exception ignored) {}
                         });
                     }
@@ -96,7 +103,7 @@ public class MainActivity extends BridgeActivity {
                     File taraDir = new File(downloadsDir, "TaraConnect");
                     if (!taraDir.exists()) taraDir.mkdirs();
                     
-                    File file = new File(taraDir, fileName);
+                    File file = new File(taraDir, safeFileName);
                     FileOutputStream fos = new FileOutputStream(file);
                     fos.write(fileBytes);
                     fos.flush();
@@ -104,7 +111,7 @@ public class MainActivity extends BridgeActivity {
 
                     android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
                     handler.post(() -> {
-                        Toast.makeText(context, "Downloaded: " + fileName, Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Downloaded: " + safeFileName, Toast.LENGTH_LONG).show();
                         try {
                             Uri fileUri = androidx.core.content.FileProvider.getUriForFile(
                                 context,
@@ -114,7 +121,7 @@ public class MainActivity extends BridgeActivity {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setDataAndType(fileUri, mimeType);
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            context.startActivity(Intent.createChooser(intent, "Open " + fileName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                            context.startActivity(Intent.createChooser(intent, "Open " + safeFileName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                         } catch (Exception ignored) {}
                     });
                 }

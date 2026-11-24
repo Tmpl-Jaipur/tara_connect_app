@@ -1,12 +1,13 @@
 {
   "name": "tara-connect-app",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "overrides": {
     "dompurify": ">=3.4.7",
     "follow-redirects": ">=1.16.1",
     "shell-quote": ">=1.8.4",
-    "launch-editor": ">=2.4.2"
+    "launch-editor": ">=2.4.2",
+    "websocket-driver": ">=0.8.0"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.2",
